@@ -1,0 +1,2 @@
+<p>Powered by <a href="http://www.java.com">Java</a>, <a href="http://sparkjava.com">Spark</a>,
+              <a href="http://freemarker.org">Freemarker</a>, <a href="http://www.mongodb.com">MongoDB</a></p>
