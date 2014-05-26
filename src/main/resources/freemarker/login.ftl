@@ -1,10 +1,8 @@
 <!DOCTYPE html>
 <html>
-
     <head>
-        <title>Welcome to Blog Admin Site</title>
+        <title>Log in for Admin Site</title>
     </head>
-
     <body>
         <h3>Log in for Access:</h1>
         <form method="post">

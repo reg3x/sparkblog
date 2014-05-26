@@ -1,11 +1,9 @@
 <!DOCTYPE html>
 <html>
-
     <head>
         <title>reg3x blog</title>
-        <link rel="stylesheet" type="text/css" href="/c ss/blog.css">
+        <link rel="stylesheet" type="text/css" href="/css/blog.css">
     </head>
-
     <body>
         <h2>Welcome to Reg3x's Blog</h1>
         <a href="/login">Login</a>
@@ -21,5 +19,4 @@
         </#if>
         <#include "footer.ftl">
     </body>
-
 </html>
