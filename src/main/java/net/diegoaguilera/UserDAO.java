@@ -23,16 +23,16 @@ public class UserDAO {
             return user;
     }
 
-    public Boolean addUser(String username, String email, String password) {
+    public String addUser(String username, String email, String password) {
         try {
             usersCollection.insert(new BasicDBObject("_id",username).append("email",email).append("password",password));
-            return true;
+            return "none";
         }catch (MongoException.DuplicateKey duplicateKey){
             System.out.println("Duplicate Key Error at inserting username: "+username);
-            return false;
+            return "Duplicate key Error";
         }catch (MongoServerSelectionException e){
             System.out.println("Server seems unreachable");
-            return false;
+            return "MongoDB Server is not reachable";
         }
     }
 }
