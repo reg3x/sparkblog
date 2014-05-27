@@ -11,6 +11,8 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 import spark.Spark;
+
+import javax.servlet.http.Cookie;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -109,27 +111,41 @@ public class BlogController {
                 //validate login with UserDAO
                 DBObject user = userDAO.validateUser(username,password);
                 if (user == null){
-                    System.out.println("User "+username+" does not exist");
+                    System.out.println("Invalid login for username: "+username+" ");
                     map.put("username", username);
                     map.put("password", password);
-                    map.put("login_error", "Invalid User");
+                    map.put("login_error", "Invalid User/Password");
                     template.process(map, writer);
-                }else response.redirect("/welcome");
+                }else {
+                    //valid user checked at DB, start session and then create cookie
+                    String sessionID = sessionDAO.startSession(user.get("_id").toString());
+                    if (sessionID!=null){
+                        //session created now create the cookie
+                        response.raw().addCookie(new Cookie("session", sessionID));
+                        response.redirect("/welcome");
+
+                    }else{
+                        // error creating session
+                        //issue #6 - need to handle sessions error at /internal_error
+                        response.redirect("/internal_error");
+                    }
+                }
             }
         });
         get(new FreemarkedRoute("/welcome","welcome.ftl") {
             @Override
             protected void doHandle(Request request, Response response, Writer writer) throws IOException, TemplateException {
                 SimpleHash map = new SimpleHash();
-                String access = new String("validUser");
-                map.put("access",access);
-                template.process(map, writer);
+                String sessionCookie = getSessionCookie(request);
+                String user = sessionDAO.findUsernameBySessionID(sessionCookie);
 
-                //create a new post
-
-                //delete a post
-
-                //edit a post
+                if (user == null){
+                    System.out.println("user no yet logged trying to access");
+                    response.redirect("/login");
+                }else {
+                    map.put("username", user);
+                    template.process(map, writer);
+                }
             }
         });
         get(new FreemarkedRoute("/signup","signup.ftl") {
@@ -164,6 +180,7 @@ public class BlogController {
                     String addUserError = userDAO.addUser(username,email,password);
                     if (addUserError.equals("none")) {
                         System.out.println("User: "+username+" created successfully");
+                        response.redirect("/login");
                     } else if (addUserError.equals("Duplicate key Error")) {
                         System.out.println("Couldn't create User: "+username+" Due to Duplicate keys");
                         map.put("signup_error",addUserError);
@@ -198,6 +215,17 @@ public class BlogController {
                 template.process(map, writer);
             }
         });
+    }
+
+    private String getSessionCookie(final Request request) {
+        if (request.raw().getCookies() == null){
+            return null;
+        }
+        for (Cookie cookie : request.raw().getCookies()) {
+            if (cookie.getName().equals("session"))
+            return cookie.getValue();
+        }
+        return null;
     }
 
     private String validateSignup(String username, String email, String password) {

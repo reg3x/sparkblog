@@ -19,8 +19,13 @@ public class UserDAO {
         if (user == null){
             System.out.println("user not in database");
             return null;
-        }else
+        }else if (user.get("password").equals(password)){
+            System.out.println("correct user and password");
             return user;
+        }else {
+            System.out.println("Incorrect password for username: " + username);
+            return null;
+        }
     }
 
     public String addUser(String username, String email, String password) {
