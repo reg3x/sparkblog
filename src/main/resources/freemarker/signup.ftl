@@ -12,6 +12,12 @@
             ReEnter Password: <input name="repassword" type="password"></input>
             <input type="submit"></input>
             ${signup_error}
+            <br>
+            <p>Consider the Following:</p>
+            <ul>
+                <li>Username should be at least 2 characters length</li>
+                <li>Password should be numbers and letters 3 charaters minimum</li>
+            </ul>
         </form>
     </body>
 </html>
