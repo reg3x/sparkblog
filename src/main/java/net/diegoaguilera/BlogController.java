@@ -155,6 +155,7 @@ public class BlogController {
                 map.put("username","");
                 map.put("email","");
                 map.put("password","");
+                map.put("repassword", "");
                 map.put("signup_error", "");
                 template.process(map,writer);
             }
@@ -165,36 +166,49 @@ public class BlogController {
                 String username = request.queryParams("username");
                 String email = request.queryParams("email");
                 String password = request.queryParams("password");
+                String repassword = request.queryParams("repassword");
                 System.out.println("An attempt to create an user with:");
                 System.out.println("Username: "+username);
                 System.out.println("Email: "+email);
                 System.out.println("Password: "+password);
+                System.out.println("RePassword: "+repassword);
 
                 Hashtable<String, String> map = new Hashtable<String, String>();
 
                 //validate inputs
-                String validationError = validateSignup(username, email, password);
-                System.out.println("value: "+validationError);
-                if (validationError.equals("none")){
-                    //validate User creation
-                    String addUserError = userDAO.addUser(username,email,password);
-                    if (addUserError.equals("none")) {
-                        System.out.println("User: "+username+" created successfully");
-                        response.redirect("/login");
-                    } else if (addUserError.equals("Duplicate key Error")) {
-                        System.out.println("Couldn't create User: "+username+" Due to Duplicate keys");
-                        map.put("signup_error",addUserError);
-                        template.process(map, writer);
-                    } else if (addUserError.equals("MongoDB Server is not reachable")){
-                        System.out.println("Couldn't create User: "+username+" Server is Unreachable");
-                        map.put("signup_error",addUserError);
+                if (!password.equals(repassword)){
+                    System.out.println("password and repassword are not the same");
+                    map.put("username", username);
+                    map.put("email",email);
+                    map.put("password","");
+                    map.put("repassword","");
+                    map.put("signup_error","passwords are not the same!");
+                    template.process(map, writer);
+                }else{
+                    String validationError = validateSignup(username, email, password);
+                    System.out.println("value: "+validationError);
+                    if (validationError.equals("none")){
+                        //validate User creation
+                        String addUserError = userDAO.addUser(username,email,password);
+                        if (addUserError.equals("none")) {
+                            System.out.println("User: "+username+" created successfully");
+                            response.redirect("/login");
+                        } else if (addUserError.equals("Duplicate key Error")) {
+                            System.out.println("Couldn't create User: "+username+" Due to Duplicate keys");
+                            map.put("signup_error",addUserError);
+                            template.process(map, writer);
+                        } else if (addUserError.equals("MongoDB Server is not reachable")){
+                            System.out.println("Couldn't create User: "+username+" Server is Unreachable");
+                            map.put("signup_error",addUserError);
+                            template.process(map, writer);
+                        }
+                    } else {
+                        System.out.println("Invalid parameters for an user");
+                        map.put("signup_error",validationError);
                         template.process(map, writer);
                     }
-                } else {
-                    System.out.println("Invalid parameters for an user");
-                    map.put("signup_error",validationError);
-                    template.process(map, writer);
                 }
+
             }
         });
         get(new FreemarkedRoute("newpost","newpost.ftl") {
