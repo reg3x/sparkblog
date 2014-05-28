@@ -58,4 +58,14 @@ public class SessionDAO {
             return user.get("username").toString();
         }
     }
+
+    public boolean endSession(String sessionID) {
+        try {
+            sessionsCollection.remove(new BasicDBObject("_id",sessionID));
+            return true;
+        }catch (MongoException e){
+            e.printStackTrace();
+        }
+            return false;
+    }
 }

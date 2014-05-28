@@ -211,14 +211,14 @@ public class BlogController {
 
             }
         });
-        get(new FreemarkedRoute("newpost","newpost.ftl") {
+        get(new FreemarkedRoute("/newpost","newpost.ftl") {
             @Override
             protected void doHandle(Request request, Response response, Writer writer) throws IOException, TemplateException {
                 SimpleHash map = new SimpleHash();
                 template.process(map, writer);
             }
         });
-        post(new FreemarkedRoute("newpost","newpost.ftl") {
+        post(new FreemarkedRoute("/newpost","newpost.ftl") {
             @Override
             protected void doHandle(Request request, Response response, Writer writer) throws IOException, TemplateException {
                 SimpleHash map = new SimpleHash();
@@ -227,6 +227,30 @@ public class BlogController {
                 System.out.println("tags: "+request.queryParams("tags"));
                 //validate tags
                 template.process(map, writer);
+            }
+        });
+        get(new FreemarkedRoute("/logout","login.ftl") {
+            @Override
+            protected void doHandle(Request request, Response response, Writer writer) throws IOException, TemplateException {
+                String sessionID = getSessionCookie(request);
+
+                if (sessionID == null){
+                    //nothing to do if the user has no cookie
+                    System.out.println("cookie not found, nothing to delete");
+                }else {
+                    if (sessionDAO.endSession(sessionID)){
+                        //session deleted from database
+                        System.out.println("session deleted from DB");
+                        Cookie cookie  = getSessionCookieActual(request);
+                        cookie.setMaxAge(0);
+                        //delete cookie
+                        response.raw().addCookie(cookie);
+                    } else {
+                        //couldn't delete the cookie
+                        System.out.println("Error: Couldn't erase session");
+                    }
+                    response.redirect("/login");
+                }
             }
         });
     }
@@ -238,6 +262,16 @@ public class BlogController {
         for (Cookie cookie : request.raw().getCookies()) {
             if (cookie.getName().equals("session"))
             return cookie.getValue();
+        }
+        return null;
+    }
+    private Cookie getSessionCookieActual(final Request request) {
+        if (request.raw().getCookies() == null){
+            return null;
+        }
+        for (Cookie cookie : request.raw().getCookies()) {
+            if (cookie.getName().equals("session"))
+                return cookie;
         }
         return null;
     }
