@@ -8,7 +8,7 @@ import java.io.IOException;
  * Created by diegoaguilerazambrano on 21/05/14.
  */
 public class UserDAO {
-    private DBCollection usersCollection;
+    private final DBCollection usersCollection;
 
     public UserDAO(DB blogDatabase){
         usersCollection =  blogDatabase.getCollection("users");

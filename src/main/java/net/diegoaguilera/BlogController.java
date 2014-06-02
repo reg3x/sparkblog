@@ -192,6 +192,9 @@ public class BlogController {
                         String addUserError = userDAO.addUser(username,email,password);
                         if (addUserError.equals("none")) {
                             System.out.println("User: "+username+" created successfully");
+                            //user created successfully
+                            //the user needs confirmation of successfully created account, check ftl
+                            //signup ftl for variable success 
                             response.redirect("/login");
                         } else if (addUserError.equals("Duplicate key Error")) {
                             System.out.println("Couldn't create User: "+username+" Due to Duplicate keys");
@@ -222,11 +225,30 @@ public class BlogController {
             @Override
             protected void doHandle(Request request, Response response, Writer writer) throws IOException, TemplateException {
                 SimpleHash map = new SimpleHash();
-                System.out.println("Title: "+request.queryParams("title"));
-                System.out.println("Body: "+request.queryParams("body"));
-                System.out.println("tags: "+request.queryParams("tags"));
+                String title = new String(request.queryParams("title"));
+                String body = new String(request.queryParams("body"));
+                String tags = new String(request.queryParams("tags"));
+                System.out.println("Title: "+ title);
+                System.out.println("Body: "+ body);
+                System.out.println("tags: "+ tags);
+                String user = sessionDAO.findUsernameBySessionID(getSessionCookie(request));
+                if ( user != null) {
+                    if (blogPostDAO.addPost(user, title, body, tags)){
+                        //post added
+                        System.out.println("newpost posted!");
+                        response.redirect("/welcome");
+
+                    }else {
+                        //couldn't add the post
+                        System.out.println("there has been an error at DB");
+                        response.redirect("/internal_error");
+                    }
+                }else {
+                    //user does not exist please login
+                    System.out.println("user does not exist");
+                    response.redirect("/login");
+                }
                 //validate tags
-                template.process(map, writer);
             }
         });
         get(new FreemarkedRoute("/logout","login.ftl") {

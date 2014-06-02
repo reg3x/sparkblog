@@ -11,7 +11,7 @@
             Password: <input name="password" type="password"></input>
             ReEnter Password: <input name="repassword" type="password"></input>
             <input type="submit"></input>
-            ${signup_error}
+            ${signup_error!""}
             <br>
             <p>Consider the Following:</p>
             <ul>
@@ -20,4 +20,5 @@
             </ul>
         </form>
     </body>
+    ${success!""}
 </html>

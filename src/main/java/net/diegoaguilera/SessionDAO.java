@@ -27,7 +27,8 @@ public class SessionDAO {
         BASE64Encoder encoder = new BASE64Encoder();
         String sessionID = encoder.encode(randomBytes);
         System.out.println("sessionID to use: "+sessionID);
-
+        //what if the session already exists in the database? we should modify instead of insert
+        // so take the new cookie and modify the session id
         BasicDBObject session = new BasicDBObject("username",username);
         session.append("_id",sessionID);
         try {
