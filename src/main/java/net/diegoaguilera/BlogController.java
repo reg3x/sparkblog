@@ -16,6 +16,7 @@ import javax.servlet.http.Cookie;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -216,6 +217,7 @@ public class BlogController {
         });
         get(new FreemarkedRoute("/newpost","newpost.ftl") {
             @Override
+            //need to validate if the user is not logged check for cookie and then search in DB
             protected void doHandle(Request request, Response response, Writer writer) throws IOException, TemplateException {
                 SimpleHash map = new SimpleHash();
                 template.process(map, writer);
@@ -232,8 +234,11 @@ public class BlogController {
                 System.out.println("Body: "+ body);
                 System.out.println("tags: "+ tags);
                 String user = sessionDAO.findUsernameBySessionID(getSessionCookie(request));
+
+                ArrayList<String> cleanedTags = new ArrayList<String>();
+                cleanedTags = extractTags(tags);
                 if ( user != null) {
-                    if (blogPostDAO.addPost(user, title, body, tags)){
+                    if (blogPostDAO.addPost(user, title, body, cleanedTags)){
                         //post added
                         System.out.println("newpost posted!");
                         response.redirect("/welcome");
@@ -275,6 +280,22 @@ public class BlogController {
                 }
             }
         });
+    }
+
+    private  ArrayList<String> extractTags(String tags) {
+        System.out.println("tags are: "+tags);
+        //require to improve and also to eliminate special characters to only allow -&,\s
+        tags = tags.replaceAll("\\s|-|&", ",").replaceAll(",+", ",");
+        System.out.println("tags after replaceAll: "+ tags);
+        String tagsArray[] = tags.split(",");
+
+        ArrayList<String> cleanedTags = new ArrayList<String>();
+        for (String arrayElement:tagsArray){
+            if (arrayElement!="" && !cleanedTags.contains(arrayElement)){
+                cleanedTags.add(arrayElement);
+            }
+        }
+        return cleanedTags;
     }
 
     private String getSessionCookie(final Request request) {

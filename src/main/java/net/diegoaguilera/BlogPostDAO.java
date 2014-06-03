@@ -2,6 +2,7 @@ package net.diegoaguilera;
 
 import com.mongodb.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,7 +21,7 @@ public class BlogPostDAO {
         return posts;
     }
 
-    public boolean addPost(String author, String title, String body, String tags) {
+    public boolean addPost(String author, String title, String body, ArrayList<String> tags) {
         try {
             postsCollection.insert(new BasicDBObject("author",author).append("body",body).append("tags", tags));
             return true;
