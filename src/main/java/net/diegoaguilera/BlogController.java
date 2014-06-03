@@ -235,25 +235,35 @@ public class BlogController {
                 System.out.println("tags: "+ tags);
                 String user = sessionDAO.findUsernameBySessionID(getSessionCookie(request));
 
-                ArrayList<String> cleanedTags = new ArrayList<String>();
-                cleanedTags = extractTags(tags);
-                if ( user != null) {
-                    if (blogPostDAO.addPost(user, title, body, cleanedTags)){
-                        //post added
-                        System.out.println("newpost posted!");
-                        response.redirect("/welcome");
+                if (!title.equals("") && !body.equals("")){
 
+                    ArrayList<String> cleanedTags = new ArrayList<String>();
+                    cleanedTags = extractTags(tags);
+                    if ( user != null) {
+                        if (blogPostDAO.addPost(user, title, body, cleanedTags)){
+                            //post added
+                            System.out.println("newpost posted!");
+                            response.redirect("/welcome");
+
+                        }else {
+                            //couldn't add the post
+                            System.out.println("there has been an error at DB");
+                            response.redirect("/internal_error");
+                        }
                     }else {
-                        //couldn't add the post
-                        System.out.println("there has been an error at DB");
-                        response.redirect("/internal_error");
+                        //user does not exist please login
+                        System.out.println("user does not exist");
+                        response.redirect("/login");
                     }
-                }else {
-                    //user does not exist please login
-                    System.out.println("user does not exist");
-                    response.redirect("/login");
+                    //validate tags
+
+                }else{
+                    System.out.println("neither title or body can't be empty");
+                    String error = new String("Neither Title or Body can be empty");
+                    map.put("error", error);
+                    template.process(map, writer);
                 }
-                //validate tags
+
             }
         });
         get(new FreemarkedRoute("/logout","login.ftl") {

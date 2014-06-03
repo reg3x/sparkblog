@@ -13,5 +13,6 @@
             Tags:<input name="tags" type="text"></input>
             <input type="Submit" value="Post it!"></input>
         </form>
+        <p>${error!""}</p>
     </body>
 </html>
