@@ -22,8 +22,10 @@ public class BlogPostDAO {
     }
 
     public boolean addPost(String author, String title, String body, ArrayList<String> tags) {
+        String permalink = title.replaceAll("\\s","_").replaceAll("\\W","").toLowerCase();
+        System.out.println("permalink to use: "+ permalink);
         try {
-            postsCollection.insert(new BasicDBObject("author",author).append("body",body).append("tags", tags));
+            postsCollection.insert(new BasicDBObject("author",author).append("body",body).append("tags", tags).append("permalink",permalink));
             return true;
         }catch (MongoException e){
             System.out.println("Couldn't access usersCollection");
