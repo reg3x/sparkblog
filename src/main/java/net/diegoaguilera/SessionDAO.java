@@ -29,9 +29,11 @@ public class SessionDAO {
         System.out.println("sessionID to use: "+sessionID);
         //what if the session already exists in the database? we should modify instead of insert
         // so take the new cookie and modify the session id
-        BasicDBObject session = new BasicDBObject("username",username);
-        session.append("_id",sessionID);
+        BasicDBObject session = new BasicDBObject("_id",sessionID).append("username",username);
+
+
         try {
+            sessionsCollection.remove(new BasicDBObject("username", username));
             sessionsCollection.insert(session);
         } catch (Exception e) {
             System.out.println("Error: Couldn't insert session for user: "+username);
