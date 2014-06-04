@@ -290,6 +290,15 @@ public class BlogController {
                 }
             }
         });
+        get(new FreemarkedRoute("/internal_error","internal_error.ftl") {
+            @Override
+            protected void doHandle(Request request, Response response, Writer writer) throws IOException, TemplateException {
+                SimpleHash map = new SimpleHash();
+                String error = new String("unexpected error");
+                map.put("error",error);
+                template.process(map, writer);
+            }
+        });
     }
 
     private  ArrayList<String> extractTags(String tags) {
